@@ -31,5 +31,5 @@ services:
   - xvfb
 
 script: 
-  - travis_wait 30 ./install-devel.sh --scripts-branch AC-argparse --core-branch AC-argparse --install-repo --test --use-repo .
+  - travis_wait 30 ./install-devel.sh --cgatapps-branch AC-argparse --cgatcore-branch AC-argparse --install-repo --test --use-repo .
 
