@@ -19,35 +19,34 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true",
-                      help="dry run, do not delete any files [%default]")
+    parser.add_argument("-n", "--dry-run", dest="dry_run", action="store_true",
+                        help="dry run, do not delete any files")
 
     parser.set_defaults(dry_run=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     indent = 0
-    for line in options.stdin:
+    for line in args.stdin:
 
         if not line.strip():
-            options.stdout.write("\n")
+            args.stdout.write("\n")
             continue
 
         if line.startswith("["):
             section = re.search("\[(.*)\]", line).groups()[0]
             if section == "general":
                 indent = 0
-                options.stdout.write("\n")
+                args.stdout.write("\n")
             else:
                 indent = 4
-                options.stdout.write("{}:\n".format(line.strip()[1:-1]))
+                args.stdout.write("{}:\n".format(line.strip()[1:-1]))
 
         elif line.startswith("#"):
-            options.stdout.write("{}{}".format(" " * indent, line))
+            args.stdout.write("{}{}".format(" " * indent, line))
 
         elif "=" in line:
             key, val = re.search("([^=]+)=(.*)", line).groups()
@@ -66,7 +65,7 @@ def main(argv=None):
             if val == "":
                 val = "''"
 
-            options.stdout.write("{}{}: {}\n".format(" " * indent, key, val))
+            args.stdout.write("{}{}: {}\n".format(" " * indent, key, val))
     # write footer and output benchmark information.
     E.stop()
 

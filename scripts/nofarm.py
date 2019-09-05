@@ -43,12 +43,12 @@ def main(argv=None):
 
     parser = farm.getOptionParser()
 
-    (options, args) = E.Start(parser,
-                              add_cluster_options=True)
+    (args, unknown) = E.Start(parser,
+                                       add_cluster_options=True)
 
-    cmd = args[0]
-    if len(args) > 1:
-        cmd += " '" + "' '".join(args[1:]) + "'"
+    cmd = unknown[0]
+    if len(unknown) > 1:
+        cmd += " '" + "' '".join(unknown[1:]) + "'"
 
     cmd = re.sub("%DIR%", "", cmd)
     retcode = subprocess.call(cmd,

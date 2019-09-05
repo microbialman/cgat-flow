@@ -86,20 +86,20 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     # stop parsing options at the first argument
     parser.disable_interspersed_args()
 
-    (options, args) = E.Start(parser,
-                              add_pipe_options=True)
+    (args, unknown) = E.Start(parser,
+                              add_pipe_options=True,
+                              unknowns=True)
 
-    if len(args) > 0:
+    if len(unknown) > 0:
 
-        cmd = args[0]
-        if len(args) > 1:
-            cmd += " '" + "' '".join(args[1:]) + "'"
+        cmd = unknown[0]
+        if len(unknown) > 1:
+            cmd += " '" + "' '".join(unknown[1:]) + "'"
 
         s = subprocess.Popen(cmd,
                              shell=True,

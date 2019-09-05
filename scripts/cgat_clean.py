@@ -51,18 +51,17 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true",
-                      help="dry run, do not delete any files [%default]")
+    parser.add_argument("-n", "--dry-run", dest="dry_run", action="store_true",
+                        help="dry run, do not delete any files [%default]")
 
     parser.set_defaults(dry_run=False)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (args, unknown) = E.Start(parser, argv=argv, unknowns=True)
 
-    filenames = args
+    filenames = unknown
 
     c = E.Counter()
     for filename in filenames:
@@ -78,7 +77,7 @@ def main(argv=None):
 
         c.incomplete += 1
         E.info('deleting %s' % filename)
-        if options.dry_run:
+        if args.dry_run:
             continue
         os.unlink(filename)
         c.deleted += 1

@@ -65,29 +65,28 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-s", "--source", dest="source_directory",
-                      type="string", default=False,
-                      help="The directory in which data"
-                      "files are held [%default]")
+    parser.add_argument("-s", "--source", dest="source_directory",
+                        type=str, default=False,
+                        help="The directory in which data"
+                        "files are held")
 
-    parser.add_option("-d", "--dest", dest="dest_directory",
-                      type="string", default=False,
+    parser.add_argument("-d", "--dest", dest="dest_directory",
+                      type=str, default=False,
                       help="The directory in which links"
-                      "are created [%default]")
+                      "are created")
 
     parser.set_defaults(source_directory=None,
                         dest_directory=".")
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.start(parser, argv=argv)
+    (args) = E.start(parser, argv=argv)
 
     # read a map of input files to links with sanity checks
     map_filename2link = {}
     links = set()
-    for line in options.stdin:
+    for line in args.stdin:
         if line.startswith("#"):
             continue
 
@@ -108,7 +107,7 @@ def main(argv=None):
 
     def _createLink(src, dest, counter):
         src = os.path.abspath(src)
-        dest = os.path.abspath(os.path.join(options.dest_directory, dest))
+        dest = os.path.abspath(os.path.join(args.dest_directory, dest))
         if os.path.exists(dest):
             E.warn("existing symlink %s" % dest)
             counter.link_exists += 1
@@ -122,7 +121,7 @@ def main(argv=None):
             except OSError:
                 pass
 
-    if not options.source_directory:
+    if not args.source_directory:
         # no source directory given, filenames must have complete path
         for filename, link in list(map_filename2link.items()):
             _createLink(filename, link, counter)
@@ -130,7 +129,7 @@ def main(argv=None):
         # walk through directory hierchy and create links
         # for files matching filenames in map_filename2link
         found = set()
-        for dirName, subdirList, fileList in os.walk(options.source_directory):
+        for dirName, subdirList, fileList in os.walk(args.source_directory):
             for f in fileList:
                 if f in map_filename2link:
                     if f in found:
