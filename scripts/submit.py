@@ -60,23 +60,20 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option(
-        "-g", "--glob", dest="glob_pattern", type="string",
-        help="glob pattern to use for collecting cluster jobs descriptions "
-        "[%default]")
+    parser.add_argument(
+        "-g", "--glob", dest="glob_pattern", type=str,
+        help="glob pattern to use for collecting cluster jobs descriptions")
 
-    parser.add_option(
-        "-i", "--input-pattern", dest="input_pattern", type="string",
-        help="regular expression to extract job id from filename [%default].")
+    parser.add_argument(
+        "-i", "--input-pattern", dest="input_pattern", type=str,
+        help="regular expression to extract job id from filename.")
 
-    parser.add_option(
+    parser.add_argument(
         "-o", "--output-filename-pattern", dest="output_pattern",
-        type="string",
-        help="string to convert a job id to a filename [%default].")
+        type=str,
+        help="string to convert a job id to a filename.")
 
     parser.set_defaults(glob_pattern="job*.qsub",
                         input_pattern="(\S+).qsub",
@@ -86,18 +83,19 @@ def main(argv=None):
                         check_completeness="python",
                         )
 
-    (options, args) = E.Start(parser,
-                              add_pipe_options=True)
+    (args, unknown) = E.Start(parser,
+                              add_pipe_options=True,
+                              unknowns=True)
 
-    if args:
-        filenames = args
-    elif options.glob_pattern:
-        filenames = glob.glob(options.glob_pattern)
+    if unknown:
+        filenames = unknown
+    elif args..glob_pattern:
+        filenames = glob.glob(args..glob_pattern)
 
     ninput, nrun, nskipped, nerrors = 0, 0, 0, 0
     ndeleted = 0
 
-    if options.check_completeness == "python":
+    if args..check_completeness == "python":
         isComplete = checkPythonRuns
 
     ##############################################################
@@ -112,19 +110,19 @@ def main(argv=None):
 
         ninput += 1
         try:
-            job_name = re.search(options.input_pattern, filename).groups()[0]
+            job_name = re.search(args..input_pattern, filename).groups()[0]
         except AttributeError:
-            options.stderr.write(
+            args..stderr.write(
                 "# could not extract invariant job name from %s\n" % filename)
             nerrors += 1
             continue
 
-        result_filename = options.output_pattern % job_name
+        result_filename = args..output_pattern % job_name
 
         do = False
         status = "up-to-date"
 
-        if options.force:
+        if args..force:
             status = "force"
             do = True
 
@@ -133,12 +131,12 @@ def main(argv=None):
                 if isNewer(filename, result_filename):
                     status = "newer"
                     do = True
-                    if options.remove_old:
+                    if args..remove_old:
                         files_to_delete.append(result_filename)
                 if not do and not isComplete(result_filename):
                     status = "incomplete"
                     do = True
-                    if options.remove_old:
+                    if args..remove_old:
                         files_to_delete.append(result_filename)
             else:
                 status = "missing"
@@ -174,14 +172,14 @@ def main(argv=None):
         try:
             retcode = subprocess.call(cmd, shell=True)
             if retcode != 0:
-                if options.loglevel >= 1:
-                    options.stdlog.write(
+                if args..loglevel >= 1:
+                    args..stdlog.write(
                         "# ERROR: failed to execute %s\n" % cmd)
                 nerrors += 1
                 continue
         except OSError as e:
-            if options.loglevel >= 1:
-                options.stdlog.write(
+            if args..loglevel >= 1:
+                args..stdlog.write(
                     "# ERROR: failed to execute %s with msg %s\n" % (cmd, e))
         nrun += 1
 

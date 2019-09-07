@@ -767,150 +767,145 @@ def runDRMAA(data, environment):
 def getOptionParser():
     """create parser and add options."""
 
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option(
-        "--split-at-lines", dest="split_at_lines", type="int",
-        help="split jobs according to line number [%default].")
+    parser.add_argument(
+        "--split-at-lines", dest="split_at_lines", type=int,
+        help="split jobs according to line number.")
 
-    parser.add_option(
-        "--split-at-column", dest="split_at_column", type="int",
+    parser.add_argument(
+        "--split-at-column", dest="split_at_column", type=int,
         help="split jobs according to column. Columns start at number 1 "
-        "and the input should be sorted by this column [%default].")
+        "and the input should be sorted by this column.")
 
-    parser.add_option(
-        "--group-by-regex", dest="group_by_regex", type="string",
-        help="group jobs according to a regular expression [%default].")
+    parser.add_argument(
+        "--group-by-regex", dest="group_by_regex", type=str,
+        help="group jobs according to a regular expression.")
 
-    parser.add_option(
-        "--split-at-regex", dest="split_at_regex", type="string",
-        help="split jobs according to a regular expression [%default].")
+    parser.add_argument(
+        "--split-at-regex", dest="split_at_regex", type=str,
+        help="split jobs according to a regular expression.")
 
-    parser.add_option(
-        "--split-at-tag", dest="split_at_tag", type="int",
-        help="split a file at a tag [%default].")
+    parser.add_argument(
+        "--split-at-tag", dest="split_at_tag", type=int,
+        help="split a file at a tag.")
 
-    parser.add_option(
-        "--chunk-size", dest="chunksize", type="int",
-        help="when splitting at regex or tag, aggregate x entries [%default].")
+    parser.add_argument(
+        "--chunk-size", dest="chunksize", type=int,
+        help="when splitting at regex or tag, aggregate x entries.")
 
-    parser.add_option(
+    parser.add_argument(
         "--debug", dest="debug", action="store_true",
-        help="debug mode. Do not delete temporary file [%default].")
+        help="debug mode. Do not delete temporary file.")
 
-    parser.add_option(
+    parser.add_argument(
         "--dry-run", dest="dry_run", action="store_true",
         help="dry run. Do not split input and simply forward stdin to stdout. "
-        "Useful for debugging the command [%default].")
+        "Useful for debugging the command.")
 
-    parser.add_option(
+    parser.add_argument(
         "--input-header", dest="input_header", action="store_true",
         help="The input stream contains a table header. "
-        "This header is replicated for each job [%default].")
+        "This header is replicated for each job.")
 
-    parser.add_option(
+    parser.add_argument(
         "--output-header", dest="output_header", action="store_true",
         help="The output jobs contain a table header. "
-        "The header is removed for each job except for the first [%default].")
+        "The header is removed for each job except for the first.")
 
-    parser.add_option(
-        "--output-regex-header", dest="output_regex_header", type="string",
+    parser.add_argument(
+        "--output-regex-header", dest="output_regex_header", type=str,
         help="Regular expression for header (in stdout stream). Any lines "
-        "before the first line matching this regular expression are ignored"
-        "[%default].")
+        "before the first line matching this regular expression are ignored")
 
-    parser.add_option(
-        "--output-tag", dest="output_tag", type="string",
+    parser.add_argument(
+        "--output-tag", dest="output_tag", type=str,
         help="The output jobs contain a tag in the last line denoting "
         "job completion. If the unix return value denotes an error, the "
-        "presence of this tag is checked [%default].")
+        "presence of this tag is checked.")
 
-    parser.add_option(
+    parser.add_argument(
         "--subdirs", dest="subdirs", action="store_true",
         help="Run within separate subdirs for jobs. This permits "
-        "multiple output streams. Use a placeholder %DIR% if you supply "
-        "the ouput pattern as a command line option [%default].")
+        "multiple output streams. Use a placeholder DIR if you supply "
+        "the ouput pattern as a command line option.")
 
-    parser.add_option(
-        "-T", "--temp-dir", dest="tmpdir", type="string",
+    parser.add_argument(
+        "-T", "--temp-dir", dest="tmpdir", type=str,
         help="Temporary directory to be used. Default is the current "
-        "directory [%default].")
+        "directory.")
 
-    parser.add_option("--max-files", dest="max_files", type="int",
-                      help="create at most x files [%default].")
+    parser.add_argument("--max-files", dest="max_files", type=int,
+                      help="create at most x files.")
 
-    parser.add_option(
-        "--max-lines", dest="max_lines", type="int",
+    parser.add_argument(
+        "--max-lines", dest="max_lines", type=int,
         help="in addition to splitting into chunksize, also split if "
-        "more than max-lines is reached [%default].")
+        "more than max-lines is reached.")
 
-    parser.add_option(
-        "--renumber", dest="renumber", type="string",
-        help="renumber ids consecutively, supply a pattern [%default].")
+    parser.add_argument(
+        "--renumber", dest="renumber", type=str,
+        help="renumber ids consecutively, supply a pattern.")
 
-    parser.add_option(
-        "--renumber-column", dest="renumber_column", type="string",
+    parser.add_argument(
+        "--renumber-column", dest="renumber_column", type=str,
         action="append",
         help="specify column to renumber. The format is regex:column, "
-        "for example csv:1 or csv:id [%default].")
+        "for example csv:1 or csv:id.")
 
-    parser.add_option(
-        "-r", "--reduce", dest="reduce", type="string", action="append",
+    parser.add_argument(
+        "-r", "--reduce", dest="reduce", type=str, action="append",
         help="Add reduce functions for specific files. The format is "
-        "file:reducer. The default reducer is 'table' for all files "
-        "[%default].")
+        "file:reducer. The default reducer is 'table' for all files ")
 
-    parser.add_option(
-        "-m", "--map", dest="map", type="string", action="append",
+    parser.add_argument(
+        "-m", "--map", dest="map", type=str, action="append",
         help="Map specific columns in tables. The format is "
-        "file:column:pattern, for example .table:1:%06i [%default].")
+        "file:column:pattern, for example .table:1:06i.")
 
-    parser.add_option(
-        "--resume", dest="resume", type="string",
-        help="resume aborted run from files in dir [%default]")
+    parser.add_argument(
+        "--resume", dest="resume", type=str,
+        help="resume aborted run from files in dir.")
 
-    parser.add_option(
-        "--collect", dest="collect", type="string",
-        help="collect files in dir and process as normally "
-        "[%default]")
+    parser.add_argument(
+        "--collect", dest="collect", type=str,
+        help="collect files in dir and process as normally")
 
-    parser.add_option(
+    parser.add_argument(
         "--is-binary", dest="binary", action="store_true",
         help="the output is binary - files are concatenated "
-        "without parsing [%default]")
+        "without parsing")
 
-    parser.add_option(
-        "--resubmit", dest="resubmit", type="int",
+    parser.add_argument(
+        "--resubmit", dest="resubmit", type=int,
         help="if a job fails, automatically resubmit # times. Set to 0 "
-        "in order to disable resubmission [%default]")
+        "in order to disable resubmission")
 
-    parser.add_option(
+    parser.add_argument(
         "--fail", dest="resubmit", action="store_false",
-        help="if a job fails, do not resubmit [%default]")
+        help="if a job fails, do not resubmit")
 
-    parser.add_option(
-        "--bashrc", dest="bashrc", type="string",
-        help="bashrc file to use [%default]")
+    parser.add_argument(
+        "--bashrc", dest="bashrc", type=str,
+        help="bashrc file to use")
 
-    parser.add_option(
-        "--method", dest="method", type="choice",
+    parser.add_argument(
+        "--method", dest="method", type=str,
         choices=("multiprocessing", "threads", "drmaa"),
-        help="method to submit jobs [%default]")
+        help="method to submit jobs")
 
-    parser.add_option(
-        "--job-memory", dest="job_memory", type="string",
+    parser.add_argument(
+        "--job-memory", dest="job_memory", type=str,
         help="per-job memory requirement."
         "Unit must be specified, eg. 100M, 1G ")
 
-    parser.add_option(
-        "-e", "--env", dest="environment", type="string", action="append",
-        help="environment variables to be passed to the jobs [%default]")
+    parser.add_argument(
+        "-e", "--env", dest="environment", type=str, action="append",
+        help="environment variables to be passed to the jobs")
 
-    parser.add_option(
-        "--output-filename-pattern", dest="output_pattern", type="string",
-        help="Pattern for secondary output filenames. Should contain a '%s' "
-        "[%default].")
+    parser.add_argument(
+        "--output-filename-pattern", dest="output_pattern", type=str,
+        help="Pattern for secondary output filenames. Should contain a '(percent)s'")
 
     parser.set_defaults(
         split_at_lines=None,
@@ -955,19 +950,21 @@ def main(argv=None):
 
     parser = getOptionParser()
 
-    (options, args) = E.Start(parser, add_cluster_options=True)
+    (args, unknown) = E.Start(parser,
+                              add_cluster_options=True,
+                              unknowns=True)
 
-    if len(args) == 0:
+    if len(unknown) == 0:
         raise ValueError(
             "command line argument missing - see usage information")
 
-    options.renumber_column = [x.split(":") for x in options.renumber_column]
+    args.renumber_column = [x.split(":") for x in args.renumber_column]
 
-    cmd = args[0]
-    if len(args) > 1:
-        cmd += " '" + "' '".join(args[1:]) + "'"
+    cmd = unknown[0]
+    if len(unknown) > 1:
+        cmd += " '" + "' '".join(unknown[1:]) + "'"
 
-    if options.dry_run:
+    if args.dry_run:
 
         cmd = re.sub("%DIR%", "", cmd)
         retcode = subprocess.call(cmd,
@@ -983,35 +980,35 @@ def main(argv=None):
     started_requests = []
     niterations = 0
 
-    if not options.collect:
-        tmpdir = os.path.abspath(tempfile.mkdtemp(dir=options.tmpdir))
+    if not args.collect:
+        tmpdir = os.path.abspath(tempfile.mkdtemp(dir=args.tmpdir))
 
         E.info(" working in directory %s" % tmpdir)
 
-        if options.split_at_lines:
+        if args.split_at_lines:
             chunk_iterator = chunk_iterator_lines
-            args = (options.split_at_lines,)
-        elif options.split_at_column:
+            unknown = (args.split_at_lines,)
+        elif args.split_at_column:
             chunk_iterator = chunk_iterator_column
-            args = (options.split_at_column - 1, options.max_files)
-        elif options.split_at_regex:
+            unknown = (args.split_at_column - 1, args.max_files)
+        elif args.split_at_regex:
             chunk_iterator = chunk_iterator_regex_split
-            args = (re.compile(options.split_at_regex),
-                    0,
-                    options.chunksize,
-                    options.max_lines)
-        elif options.group_by_regex:
+            unknown = (re.compile(args.split_at_regex),
+                       0,
+                       args.chunksize,
+                       args.max_lines)
+        elif args.group_by_regex:
             chunk_iterator = chunk_iterator_regex_group
-            args = (re.compile(options.group_by_regex), 0, options.chunksize)
+            unknown = (re.compile(args.group_by_regex), 0, args.chunksize)
         else:
             raise ValueError("please specify a way to chunk input data")
 
-        data = [(x, cmd, options, None, options.subdirs)
+        data = [(x, cmd, args. None, args.subdirs)
                 for x in chunk_iterator(
-                    options.stdin,
-                    args,
+                    args.stdin,
+                    unknown,
                     prefix=tmpdir,
-                    use_header=options.input_header)]
+                    use_header=args.input_header)]
 
         started_requests = [(x[0], x[0] + ".out") for x in data]
 
@@ -1020,24 +1017,24 @@ def main(argv=None):
             E.Stop()
             sys.exit(0)
 
-        if options.method == "multiprocessing":
-            pool = Pool(options.cluster_num_jobs)
+        if args.method == "multiprocessing":
+            pool = Pool(args.cluster_num_jobs)
             results = pool.map(runCommand, data, chunksize=1)
-        elif options.method == "drmaa":
+        elif args.method == "drmaa":
             results = []
-            runDRMAA(data, environment=options.environment)
-        elif options.method == "threads":
-            pool = ThreadPool(options.cluster_num_jobs)
+            runDRMAA(data, environment=args.environment)
+        elif args.method == "threads":
+            pool = ThreadPool(args.cluster_num_jobs)
             results = pool.map(runCommand, data, chunksize=1)
 
         niterations = 0
         for retcode, filename, cmd, logfile, iterations in results:
             niterations += iterations
-            if not hasFinished(retcode, filename, options.output_tag, logfile):
+            if not hasFinished(retcode, filename, args.output_tag, logfile):
                 failed_requests.append((filename, cmd))
 
     else:
-        tmpdir = options.collect
+        tmpdir = args.collect
         started_requests = [(x[:-4], x) for x in glob.glob(tmpdir + "/*.out")]
 
         E.info("collecting %i files from %s" % (len(started_requests),
@@ -1049,8 +1046,8 @@ def main(argv=None):
     else:
         E.info("building result from %i parts" % len(started_requests))
 
-        if options.renumber:
-            mapper = MapperLocal(pattern=options.renumber)
+        if args.renumber:
+            mapper = MapperLocal(pattern=args.renumber)
         else:
             mapper = MapperEmpty()
 
@@ -1058,7 +1055,7 @@ def main(argv=None):
         name = None
         index = None
 
-        for pattern, column in options.renumber_column:
+        for pattern, column in args.renumber_column:
 
             if re.search(pattern, "stdout"):
                 try:
@@ -1067,17 +1064,17 @@ def main(argv=None):
                     name = column
                     break
 
-        if options.binary:
-            ResultBuilderBinary()(started_requests, options.stdout, options)
+        if args.binary:
+            ResultBuilderBinary()(started_requests, args.stdout, args)
         else:
             regex = None
-            if options.output_regex_header:
-                regex = re.compile(options.output_regex_header)
+            if args.output_regex_header:
+                regex = re.compile(args.output_regex_header)
             ResultBuilder(mapper=mapper,
                           field_index=index,
                           field_name=name,
                           header_regex=regex
-                          )(started_requests, options.stdout, options)
+                          )(started_requests, args.stdout, args)
 
         # deal with logfiles : combine them into a single file
         rr = re.search("'--log=(\S+)'", cmd) or re.search("'--L\s+(\S+)'", cmd)
@@ -1087,11 +1084,11 @@ def main(argv=None):
             ResultBuilderLog()(
                 [(x[0], "%s.log" % x[0]) for x in started_requests],
                 logfile,
-                options)
+                args)
             logfile.close()
 
         # deal with other files
-        if options.subdirs:
+        if args.subdirs:
 
             files = glob.glob("%s/*.dir/*" % tmpdir)
             # remove directory
@@ -1105,7 +1102,7 @@ def main(argv=None):
                 name = None
                 index = None
 
-                for pattern, column in options.renumber_column:
+                for pattern, column in args.renumber_column:
                     if re.search(pattern, filename):
                         try:
                             index = int(column) - 1
@@ -1113,7 +1110,7 @@ def main(argv=None):
                             name = column
                         break
 
-                if options.binary:
+                if args.binary:
                     builder = ResultBuilderBinary(mapper=mapper)
                 elif filetype in (".fa", ".fasta"):
                     builder = ResultBuilderFasta(mapper=mapper)
@@ -1145,11 +1142,11 @@ def main(argv=None):
                        (len(filenames), filename))
 
                 outfile = iotools.openFile(
-                    options.output_pattern % filename, "w")
-                builder(input_filenames, outfile, options)
+                    args.output_pattern % filename, "w")
+                builder(input_filenames, outfile, args)
                 outfile.close()
 
-    if not options.debug and (not options.resume or not options.collect):
+    if not args.debug and (not args.resume or not args.collect):
         if len(failed_requests) == 0:
             E.info("removing directory %s" % tmpdir)
             shutil.rmtree(tmpdir)

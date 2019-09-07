@@ -49,17 +49,15 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option(
-        "-p", "--pattern-identifier", dest="pattern", type="string",
+    parser.add_argument(
+        "-p", "--pattern-identifier", dest="pattern", type=str,
         help="jobs matching `pattern` in their job "
-        "description will be killed [default=%default].")
+        "description will be killed.")
 
     parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true",
-                      help="do dry run, do not kill [default=%default].")
+                      help="do dry run, do not kill.")
 
     parser.set_defaults(
         pattern=None,
@@ -67,7 +65,7 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (args) = E.Start(parser, argv=argv)
 
     output = StringIO.StringIO(
         subprocess.Popen(["qstat", "-xml"],
@@ -78,8 +76,8 @@ def main(argv=None):
     ntested = 0
     to_kill = set()
 
-    if options.pattern:
-        pattern = re.compile(options.pattern)
+    if args.pattern:
+        pattern = re.compile(args.pattern)
     else:
         pattern = None
 
@@ -91,7 +89,7 @@ def main(argv=None):
             to_kill.add(id)
 
     nkilled = len(to_kill)
-    if not options.dry_run:
+    if not args.dry_run:
         p = subprocess.Popen(
             ["qdel", ",".join(to_kill)], stdout=subprocess.PIPE)
         stdout, stderr = p.communicate()

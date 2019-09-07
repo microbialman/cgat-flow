@@ -65,26 +65,23 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = E.OptionParser(
-        version="%prog version: $Id$",
-        usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option(
-        "-g", "--glob", dest="glob_pattern", type="string",
-        help="glob pattern to use for collecting files [%default].")
+    parser.add_argument(
+        "-g", "--glob", dest="glob_pattern", type=str,
+        help="glob pattern to use for collecting files.")
 
-    parser.add_option(
-        "-f", "--file-pattern", dest="file_pattern", type="string",
-        help="only check files matching this pattern [%default].")
+    parser.add_argument(
+        "-f", "--file-pattern", dest="file_pattern", type=str,
+        help="only check files matching this pattern.")
 
-    parser.add_option("-m", "--mode", dest="mode", type="choice",
-                      choices=("file", "node"),
-                      help="analysis mode [%default].")
+    parser.add_argument("-m", "--mode", dest="mode", type=str,
+                        choices=("file", "node"),
+                        help="analysis mode.")
 
-    parser.add_option(
+    parser.add_argument(
         "-r", "--recursive", action="store_true",
-        help="recursively look for logfiles from current directory "
-        "[%default].")
+        help="recursively look for logfiles from current directory")
 
     parser.set_defaults(
         truncate_sites_list=0,
@@ -93,20 +90,20 @@ def main(argv=None):
         recursive=False,
     )
 
-    (options, args) = E.Start(parser)
+    (args, unknown) = E.Start(parser, unknowns=True)
 
-    if args:
-        filenames = args
-    elif options.glob_pattern:
-        filenames = glob.glob(options.glob_pattern)
+    if unknown:
+        filenames = unknown
+    elif args.glob_pattern:
+        filenames = glob.glob(args.glob_pattern)
 
     if len(filenames) == 0:
         raise ValueError("no files to analyse")
 
-    if options.mode == "file":
+    if args.mode == "file":
         totals = Logfile.LogFileData()
 
-        options.stdout.write("file\t%s\n" % totals.getHeader())
+        args.stdout.write("file\t%s\n" % totals.getHeader())
 
         for filename in filenames:
             if filename == "-":
@@ -122,12 +119,12 @@ def main(argv=None):
 
             infile.close()
 
-            options.stdout.write("%s\t%s\n" % (filename, str(subtotals)))
+            args.stdout.write("%s\t%s\n" % (filename, str(subtotals)))
             totals += subtotals
 
-        options.stdout.write("%s\t%s\n" % ("total", str(totals)))
+        args.stdout.write("%s\t%s\n" % ("total", str(totals)))
 
-    elif options.mode == "node":
+    elif args.mode == "node":
 
         chunks_per_node = {}
 
@@ -155,20 +152,20 @@ def main(argv=None):
 
                 data.add(line)
 
-        options.stdout.write("node\t%s\n" % data.getHeader())
+        args.stdout.write("node\t%s\n" % data.getHeader())
         total = Logfile.LogFileDataLines()
 
         for node, data in sorted(chunks_per_node.items()):
             subtotal = Logfile.LogFileDataLines()
             for d in data:
-                # options.stdout.write( "%s\t%s\n" % (node, str(d) ) )
+                # args.stdout.write( "%s\t%s\n" % (node, str(d) ) )
                 subtotal += d
 
-            options.stdout.write("%s\t%s\n" % (node, str(subtotal)))
+            args.stdout.write("%s\t%s\n" % (node, str(subtotal)))
 
             total += subtotal
 
-        options.stdout.write("%s\t%s\n" % ("total", str(total)))
+        args.stdout.write("%s\t%s\n" % ("total", str(total)))
 
     E.Stop()
 

@@ -48,15 +48,14 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-n", "--dry-run", dest="dry_run", action="store_true",
-                      help="do dry run, do not kill [default=%default].")
+    parser.add_argument("-n", "--dry-run", dest="dry_run", action="store_true",
+                        help="do dry run, do not kill.")
 
-    parser.add_option("-l", "--ignore-links", dest="ignore_links",
-                      action="store_true",
-                      help="do not zap symbolic links [default=%default].")
+    parser.add_argument("-l", "--ignore-links", dest="ignore_links",
+                        action="store_true",
+                        help="do not zap symbolic links.")
 
     parser.set_defaults(
         dry_run=False,
@@ -64,9 +63,9 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (args, unknown) = E.Start(parser, argv=argv, unknowns=True)
 
-    outfile = options.stdout
+    outfile = args.stdout
 
     fields = ('st_atime', 'st_blksize', 'st_blocks',
               'st_ctime', 'st_dev', 'st_gid', 'st_ino',
@@ -76,25 +75,25 @@ def main(argv=None):
     outfile.write("filename\tlinkdest\t%s\n" % "\t".join(fields))
 
     # remove any duplicates and sort
-    args = sorted(set(args))
+    unknown = sorted(set(unknown))
 
-    for fn in args:
+    for fn in unknown:
 
         # stat follows times to links
         original = os.stat(fn)
 
         if os.path.islink(fn):
-            if not options.ignore_links:
+            if not args.ignore_links:
                 linkdest = os.readlink(fn)
                 E.info('breaking link from %s to %s' % (fn, linkdest))
-                if not options.dry_run:
+                if not args.dry_run:
                     os.unlink(fn)
                     f = open(fn, "w")
                     f.close()
         else:
             E.info('truncating file %s' % fn)
             linkdest = ""
-            if not options.dry_run:
+            if not args.dry_run:
                 f = open(fn, "w")
                 f.truncate()
                 f.close()
@@ -104,7 +103,7 @@ def main(argv=None):
             linkdest,
             "\t".join([str(getattr(original, x)) for x in fields])))
 
-        if not options.dry_run:
+        if not args.dry_run:
             # Set original times
             os.utime(fn, (original.st_atime, original.st_mtime))
             os.chmod(fn, original.st_mode)

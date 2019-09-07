@@ -47,23 +47,22 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-p", "--path", dest="path", type="string",
-                      help="path to scan for files [%default]")
+    parser.add_argument("-p", "--path", dest="path", type=str,
+                        help="path to scan for files")
 
-    parser.add_option("-d", "--destination", dest="destination", type="string",
-                      help="path to deposit files into [%defaul]")
+    parser.add_argument("-d", "--destination", dest="destination", type=str,
+                        help="path to deposit files into")
 
     parser.set_defaults(path='/ifs/projects/sftp',
                         url='http://www.cgat.org/downloads/',
                         dest='/ifs/projects/overview')
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    args = E.Start(parser, argv=argv)
 
-    statement = "find %s -name 'index.html'" % options.path
+    statement = "find %s -name 'index.html'" % args.path
 
     process = subprocess.Popen(statement,
                                shell=True,
@@ -76,7 +75,7 @@ def main(argv=None):
     files = stdout.split('\n')
     files.sort()
 
-    outfile = iotools.openFile(os.path.join(options.dest, "index.html"), "w")
+    outfile = iotools.openFile(os.path.join(args.dest, "index.html"), "w")
 
     outfile.write('''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -135,7 +134,7 @@ cgat and do not make this page available on the world wide web.
         if title.endswith("documentation"):
             title = title[:-len("documentation")]
 
-        url = os.path.join(options.url, relpath)
+        url = os.path.join(args.url, relpath)
         outfile.write(
             '<tr><td>%(proj)s</td><td><a HREF="%(url)s">%(report)s</td><td>%(title)s</td></tr>\n' % locals())
 

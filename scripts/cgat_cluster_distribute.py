@@ -68,17 +68,16 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option(
-        "-s", "--scratch-dir", dest="scratchdir", type="string",
-        help="the scratch directory on the nodes [default=%default].")
+    parser.add_argument(
+        "-s", "--scratch-dir", dest="scratchdir", type=str,
+        help="the scratch directory on the nodes.")
 
-    parser.add_option(
-        "-c", "--collection", dest="collection", type="string",
+    parser.add_argument(
+        "-c", "--collection", dest="collection", type=str,
         help="files will be put into collection. This is a directory that "
-        "will be created just below the scratch directory [default=%default].")
+        "will be created just below the scratch directory.")
 
     parser.set_defaults(
         scratchdir="/scratch",
@@ -87,22 +86,22 @@ def main(argv=None):
     )
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (args, unknown) = E.Start(parser, argv=argv, unknowns=True)
 
-    if len(args) == 0:
+    if len(unknown) == 0:
         raise ValueError(
             "please specify a collection of files/directories "
             "that should be mirrored.")
 
-    targetdir = os.path.join(options.scratchdir, options.collection)
+    targetdir = os.path.join(args.scratchdir, args.collection)
 
-    nodes = getNodes(options.nodes)
+    nodes = getNodes(args.nodes)
 
     E.info("copying to %s on nodes %s" % (targetdir, ",".join(nodes)))
 
     ninput, noutput, nskipped = 0, 0, 0
 
-    filenames = " ".join(args)
+    filenames = " ".join(unknown)
 
     for node in nodes:
         E.info("copying to node %s" % node)

@@ -41,23 +41,22 @@ import cgatcore.experiment as E
 def main(argv=None):
 
     # Parse the options
-    parser = E.OptionParser(version="%prog version: $Id: cgat_script_template.py 2871 2010-03-03 10:20:44Z andreas $",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
-    parser.add_option("-p", "--params", dest="params", type="string",
-                      help="comma separated list of addtional parameter strings")
+    parser.add_argument("-p", "--params", dest="params", type=str,
+                        help="comma separated list of addtional parameter strings")
 
-    parser.add_option("-m", "--module", dest="module", type="string",
-                      help="the full path to the module file", default=None)
+    parser.add_argument("-m", "--module", dest="module", type=str,
+                        help="the full path to the module file", default=None)
 
-    parser.add_option("-i", "--input", dest="input_filenames", type="string", action="append",
-                      help="input filename")
+    parser.add_argument("-i", "--input", dest="input_filenames", type=str, action="append",
+                        help="input filename")
 
-    parser.add_option("-o", "--output-section", dest="output_filenames", type="string", action="append",
-                      help="output filename")
+    parser.add_argument("-o", "--output-section", dest="output_filenames", type=str, action="append",
+                        help="output filename")
 
-    parser.add_option("-f", "--function", dest="function", type="string",
-                      help="the module function", default=None)
+    parser.add_argument("-f", "--function", dest="function", type=str,
+                        help="the module function", default=None)
 
     parser.set_defaults(
         input_filenames=[],
@@ -65,20 +64,20 @@ def main(argv=None):
         params=None
     )
 
-    (options, args) = E.Start(parser)
+    (args) = E.Start(parser)
 
     # Check a module and function have been specified
-    if not options.module or not options.function:
+    if not args.module or not args.function:
         raise ValueError("Both a function and Module must be specified")
 
     # If a full path was given, add this path to the system path
-    location = os.path.dirname(options.module)
+    location = os.path.dirname(args.module)
     if location != "":
         sys.path.append(location)
 
     # Establish the module name, accomodating cases where the
     # .py extension has been included in the module name
-    module_name = os.path.basename(options.module)
+    module_name = os.path.basename(args.module)
     if module_name.endswith(".py"):
         module_base_name = module_name[:-3]
     else:
@@ -90,24 +89,24 @@ def main(argv=None):
 
     module = importlib.import_module(module_base_name)
     try:
-        function = getattr(module, options.function)
+        function = getattr(module, args.function)
     except AttributeError as msg:
         raise AttributeError(msg.message + "unknown function, available functions are: %s" %
                              ",".join([x for x in dir(module) if not x.startswith("_")]))
 
-    if options.input_filenames and not options.input_filenames == ["None"]:
-        infiles = options.input_filenames
+    if args.input_filenames and not args.input_filenames == ["None"]:
+        infiles = args.input_filenames
     else:
         infiles = False
 
-    if options.output_filenames and not options.output_filenames == ["None"]:
-        outfiles = options.output_filenames
+    if args.output_filenames and not args.output_filenames == ["None"]:
+        outfiles = args.output_filenames
     else:
         outfiles = False
 
     # Parse the parameters into an array
-    if options.params:
-        params = [param.strip() for param in options.params.split(",")]
+    if args.params:
+        params = [param.strip() for param in args.params.split(",")]
     else:
         params = False
 

@@ -62,11 +62,10 @@ def main(argv=None):
         argv = sys.argv
 
     # setup command line parser
-    parser = E.OptionParser(version="%prog version: $Id$",
-                            usage=globals()["__doc__"])
+    parser = E.OptionParser(description=__doc__)
 
     # add common options (-h/--help, ...) and parse command line
-    (options, args) = E.Start(parser, argv=argv)
+    (args) = E.Start(parser, argv=argv)
 
     dir2files = {}
     for root, directory, files in os.walk("."):
